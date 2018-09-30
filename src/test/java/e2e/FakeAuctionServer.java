@@ -1,5 +1,7 @@
 package e2e;
 
+import com.goos.sniper.Main;
+import org.hamcrest.Matcher;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -7,6 +9,8 @@ import org.jivesoftware.smack.packet.Message;
 
 import static com.goos.sniper.Main.AUCTION_RESOURCE;
 import static com.goos.sniper.Main.ITEM_ID_AS_LOGIN;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 class FakeAuctionServer {
 
@@ -18,16 +22,16 @@ class FakeAuctionServer {
     private final XMPPConnection connection;
     private Chat currentChat;
 
-    public FakeAuctionServer(String itemId) {
+    FakeAuctionServer(String itemId) {
         this.itemId = itemId;
         this.connection = new XMPPConnection(XMPP_HOSTNAME);
     }
 
-    public String getItemId() {
+    String getItemId() {
         return itemId;
     }
 
-    public void startSellingItem() throws XMPPException {
+    void startSellingItem() throws XMPPException {
         connection.connect();
         connection.login(String.format(ITEM_ID_AS_LOGIN, itemId), AUCTION_PASSWORD, AUCTION_RESOURCE);
         connection.getChatManager().addChatListener((chat, createdLocally) -> {
@@ -36,21 +40,35 @@ class FakeAuctionServer {
         });
     }
 
-    public void hasReceivedJoinRequestFromSniper() throws InterruptedException {
+    void announceClosed() throws XMPPException {
+        // (2) Like the Join request, any Message that we send will do for now
+        currentChat.sendMessage("SOLVersion: 1.1; Event: CLOSE;");
+    }
+
+    void reportPrice(int price, int increment, String bidder) throws XMPPException {
+        currentChat.sendMessage(String.format(
+                "SOLVersion: 1.1; Event: PRICE; CurrentPrice: %d; Increment: %d; Bidder: %s", price, increment, bidder
+        ));
+    }
+
+    void hasReceivedJoinRequestFrom(String sniperId) throws InterruptedException {
         /* (1) We need to check that a Join has arrived.
          * Since we implement only Join for the moment any message arrived will do
          */
-        messageListener.receivesAMessage();
+        receivesAMessageMatching(sniperId, equalTo(Main.JOIN_COMMAND_FORMAT));
     }
 
-    void announceClosed() throws XMPPException {
-        // (2) Like the Join request, any Message that we send will do for now
-        currentChat.sendMessage(new Message());
+    void hasReceivedBid(int bid, String sniperId) throws InterruptedException {
+        assertThat(currentChat.getParticipant(), equalTo(sniperId));
+        messageListener.receivesAMessage(equalTo(String.format(Main.BID_COMMAND_FORMAT, bid)));
+    }
+
+    private void receivesAMessageMatching(String sniperId, Matcher<? super String> messageMatcher) throws InterruptedException {
+        messageListener.receivesAMessage(messageMatcher);
+        assertThat(currentChat.getParticipant(), equalTo(sniperId));
     }
 
     void stop() {
         connection.disconnect();
     }
-
-
 }
