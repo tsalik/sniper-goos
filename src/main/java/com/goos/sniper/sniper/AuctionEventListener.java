@@ -1,4 +1,4 @@
-package com.goos.sniper.translator;
+package com.goos.sniper.sniper;
 
 public interface AuctionEventListener {
     void auctionClosed();

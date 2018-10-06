@@ -1,5 +1,6 @@
-package com.goos.sniper.translator;
+package com.goos.sniper.xmpp;
 
+import com.goos.sniper.sniper.AuctionEventListener;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.packet.Message;

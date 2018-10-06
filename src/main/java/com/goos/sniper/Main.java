@@ -3,7 +3,8 @@ package com.goos.sniper;
 import com.goos.sniper.sniper.Auction;
 import com.goos.sniper.sniper.AuctionSniper;
 import com.goos.sniper.sniper.SniperListener;
-import com.goos.sniper.translator.AuctionMessageTranslator;
+import com.goos.sniper.xmpp.AuctionMessageTranslator;
+import com.goos.sniper.xmpp.XMPPAuction;
 import com.goos.sniper.ui.MainWindow;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPConnection;
@@ -13,7 +14,7 @@ import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class Main implements SniperListener {
+public class Main {
 
     public static final String STATUS_JOINING = "Joining";
     public static final String STATUS_LOST = "Lost";
@@ -53,7 +54,7 @@ public class Main implements SniperListener {
         this.notToBeGCd = chat;
 
         Auction auction = new XMPPAuction(chat);
-        chat.addMessageListener(new AuctionMessageTranslator(new AuctionSniper(auction, this)));
+        chat.addMessageListener(new AuctionMessageTranslator(new AuctionSniper(auction, new SniperStateDisplayer())));
         auction.join();
     }
 
@@ -81,41 +82,22 @@ public class Main implements SniperListener {
         SwingUtilities.invokeAndWait(() -> ui = new MainWindow());
     }
 
-    @Override
-    public void sniperLost() {
-        SwingUtilities.invokeLater(() -> ui.showStatus(STATUS_LOST));
-    }
+    public class SniperStateDisplayer implements SniperListener {
 
-    @Override
-    public void sniperBidding() {
-        SwingUtilities.invokeLater(() -> ui.showStatus(STATUS_BIDDING));
-    }
-
-    public static class XMPPAuction implements Auction {
-
-        private final Chat chat;
-
-        public XMPPAuction(Chat chat) {
-            this.chat = chat;
+        @Override
+        public void sniperLost() {
+            showStatus(STATUS_LOST);
         }
 
         @Override
-        public void join() {
-            sendMessage(JOIN_COMMAND_FORMAT);
+        public void sniperBidding() {
+            showStatus(STATUS_BIDDING);
         }
 
-        @Override
-        public void bid(int amount) {
-            sendMessage(String.format(BID_COMMAND_FORMAT, amount));
-        }
-
-        private void sendMessage(String format) {
-            try {
-                chat.sendMessage(format);
-            } catch (XMPPException e) {
-                e.printStackTrace();
-            }
+        private void showStatus(String status) {
+            SwingUtilities.invokeLater(() -> ui.showStatus(status));
         }
 
     }
+
 }

@@ -1,7 +1,7 @@
 package unit;
 
-import com.goos.sniper.translator.AuctionEventListener;
-import com.goos.sniper.translator.AuctionMessageTranslator;
+import com.goos.sniper.sniper.AuctionEventListener;
+import com.goos.sniper.xmpp.AuctionMessageTranslator;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.packet.Message;
 import org.junit.Test;

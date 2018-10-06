@@ -1,7 +1,5 @@
 package com.goos.sniper.sniper;
 
-import com.goos.sniper.translator.AuctionEventListener;
-
 public class AuctionSniper implements AuctionEventListener {
 
     private final SniperListener sniperListener;
