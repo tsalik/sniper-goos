@@ -8,8 +8,10 @@ import org.jivesoftware.smack.packet.Message;
 public class AuctionMessageTranslator implements MessageListener {
 
     private final AuctionEventListener listener;
+    private final String sniperId;
 
-    public AuctionMessageTranslator(AuctionEventListener eventListener) {
+    public AuctionMessageTranslator(String sniperId, AuctionEventListener eventListener) {
+        this.sniperId = sniperId;
         this.listener  = eventListener;
     }
 
@@ -21,7 +23,7 @@ public class AuctionMessageTranslator implements MessageListener {
         if ("CLOSE".equals(type)) {
             listener.auctionClosed();
         } else if ("PRICE".equals(type)) {
-            listener.currentPrice(event.currentPrice(), event.increment());
+            listener.currentPrice(event.currentPrice(), event.increment(), event.isFrom(sniperId));
         }
     }
 

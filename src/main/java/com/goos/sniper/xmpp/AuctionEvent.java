@@ -1,5 +1,7 @@
 package com.goos.sniper.xmpp;
 
+import com.goos.sniper.sniper.AuctionEventListener;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,16 +9,22 @@ class AuctionEvent {
 
     private final Map<String, String> fields = new HashMap<>();
 
-    public String type() {
+    String type() {
         return get("Event");
     }
 
-    public int currentPrice() {
+    int currentPrice() {
         return getInt("CurrentPrice");
     }
 
-    public int increment() {
+    int increment() {
         return getInt("Increment");
+    }
+
+    AuctionEventListener.PriceSource isFrom(String sniperId) {
+        return sniperId.equals(bidder())
+                ? AuctionEventListener.PriceSource.FromSniper
+                : AuctionEventListener.PriceSource.FromOtherBidder;
     }
 
     private String get(String fieldName) {
@@ -27,9 +35,13 @@ class AuctionEvent {
         return Integer.parseInt(fields.get(fieldName));
     }
 
+    private String bidder() {
+        return get("Bidder");
+    }
+
     static AuctionEvent from(String messageBody) {
         AuctionEvent event = new AuctionEvent();
-        for (String field: fieldsIn(messageBody)) {
+        for (String field : fieldsIn(messageBody)) {
             event.addField(field);
         }
         return event;

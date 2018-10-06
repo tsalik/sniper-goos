@@ -2,9 +2,7 @@ package e2e;
 
 import com.goos.sniper.Main;
 
-import static com.goos.sniper.Main.STATUS_BIDDING;
-import static com.goos.sniper.Main.STATUS_JOINING;
-import static com.goos.sniper.Main.STATUS_LOST;
+import static com.goos.sniper.Main.*;
 import static e2e.FakeAuctionServer.XMPP_HOSTNAME;
 
 class ApplicationRunner {
@@ -40,6 +38,14 @@ class ApplicationRunner {
     void showsSniperHasLostAuction() {
         // (6) We expect that the sniper has lost the auction show it should be showing somewhere a label with Lost
         driver.showsSniperStatus(STATUS_LOST);
+    }
+
+    void hasShownSniperIsWinning() {
+        driver.showsSniperStatus(STATUS_WINNING);
+    }
+
+    void hasShownSniperHasWonTheAuction() {
+        driver.showsSniperStatus(STATUS_WON);
     }
 
     void hasShownSniperIsBidding() {
