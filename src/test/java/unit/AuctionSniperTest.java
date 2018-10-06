@@ -6,9 +6,7 @@ import com.goos.sniper.sniper.AuctionSniper;
 import com.goos.sniper.sniper.SniperListener;
 import org.junit.Test;
 
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class AuctionSniperTest {
 
@@ -41,6 +39,22 @@ public class AuctionSniperTest {
         sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromSniper);
 
         verify(sniperListener, atLeast(1)).sniperWinning();
+    }
+
+    @Test
+    public void reportsLostIfAuctionClosesWhenBidding() {
+        sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromOtherBidder);
+        sniper.auctionClosed();
+
+        verify(sniperListener, atLeastOnce()).sniperLost();
+    }
+
+    @Test
+    public void reportsWonIfAuctionClosesWhenWinning() {
+        sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromSniper);
+        sniper.auctionClosed();
+
+        verify(sniperListener, atLeastOnce()).sniperWon();
     }
 
 }
