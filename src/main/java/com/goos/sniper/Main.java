@@ -1,6 +1,8 @@
 package com.goos.sniper;
 
-import com.goos.sniper.translator.AuctionEventListener;
+import com.goos.sniper.sniper.Auction;
+import com.goos.sniper.sniper.AuctionSniper;
+import com.goos.sniper.sniper.SniperListener;
 import com.goos.sniper.translator.AuctionMessageTranslator;
 import com.goos.sniper.ui.MainWindow;
 import org.jivesoftware.smack.Chat;
@@ -11,7 +13,7 @@ import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class Main implements AuctionEventListener {
+public class Main implements SniperListener {
 
     public static final String STATUS_JOINING = "Joining";
     public static final String STATUS_LOST = "Lost";
@@ -45,12 +47,14 @@ public class Main implements AuctionEventListener {
 
     }
 
-    private void joinAuction(XMPPConnection connection, String itemId) throws XMPPException  {
+    private void joinAuction(XMPPConnection connection, String itemId) throws XMPPException {
         disconnectWhenUICloses(connection);
-        final Chat chat = connection.getChatManager().createChat(auctionId(itemId, connection), new AuctionMessageTranslator(this));
+        final Chat chat = connection.getChatManager().createChat(auctionId(itemId, connection), null);
         this.notToBeGCd = chat;
 
-        chat.sendMessage(JOIN_COMMAND_FORMAT);
+        Auction auction = new XMPPAuction(chat);
+        chat.addMessageListener(new AuctionMessageTranslator(new AuctionSniper(auction, this)));
+        auction.join();
     }
 
     private void disconnectWhenUICloses(XMPPConnection connection) {
@@ -78,13 +82,40 @@ public class Main implements AuctionEventListener {
     }
 
     @Override
-    public void auctionClosed() {
+    public void sniperLost() {
         SwingUtilities.invokeLater(() -> ui.showStatus(STATUS_LOST));
     }
 
     @Override
-    public void currentPrice(int price, int increment) {
-
+    public void sniperBidding() {
+        SwingUtilities.invokeLater(() -> ui.showStatus(STATUS_BIDDING));
     }
 
+    public static class XMPPAuction implements Auction {
+
+        private final Chat chat;
+
+        public XMPPAuction(Chat chat) {
+            this.chat = chat;
+        }
+
+        @Override
+        public void join() {
+            sendMessage(JOIN_COMMAND_FORMAT);
+        }
+
+        @Override
+        public void bid(int amount) {
+            sendMessage(String.format(BID_COMMAND_FORMAT, amount));
+        }
+
+        private void sendMessage(String format) {
+            try {
+                chat.sendMessage(format);
+            } catch (XMPPException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 }
