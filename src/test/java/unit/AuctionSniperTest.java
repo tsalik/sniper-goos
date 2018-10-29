@@ -17,7 +17,7 @@ public class AuctionSniperTest {
 
         sniper.auctionClosed();
 
-        verify(sniperListener).sniperLost();
+        verify(sniperListener).sniperStateChanged(new SniperSnapshot(ITEM_ID, 0, 0, Lost.INSTANCE));
     }
 
     @Test
@@ -45,7 +45,7 @@ public class AuctionSniperTest {
         sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromOtherBidder);
         sniper.auctionClosed();
 
-        verify(sniperListener, atLeastOnce()).sniperLost();
+        verify(sniperListener, atLeastOnce()).sniperStateChanged(new SniperSnapshot(ITEM_ID, 123, 168, Lost.INSTANCE));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class AuctionSniperTest {
         sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromSniper);
         sniper.auctionClosed();
 
-        verify(sniperListener, atLeastOnce()).sniperWon();
+        verify(sniperListener, atLeastOnce()).sniperStateChanged(new SniperSnapshot(ITEM_ID,123, 123, Won.INSTANCE));
     }
 
 }

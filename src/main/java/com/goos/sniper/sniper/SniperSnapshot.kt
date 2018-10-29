@@ -10,6 +10,8 @@ data class SniperSnapshot(val itemId: String,
 
     fun winning(price: Int) = SniperSnapshot(itemId, price, price, Winning)
 
+    fun closed() = SniperSnapshot(itemId, lastPrice, lastBid, sniperState.whenAuctionClosed())
+
 }
 
 fun joining(itemId: String) = SniperSnapshot(itemId, 0, 0, Joining)
