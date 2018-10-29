@@ -1,18 +1,16 @@
 package unit;
 
-import com.goos.sniper.sniper.Auction;
-import com.goos.sniper.sniper.AuctionEventListener;
-import com.goos.sniper.sniper.AuctionSniper;
-import com.goos.sniper.sniper.SniperListener;
+import com.goos.sniper.sniper.*;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
 public class AuctionSniperTest {
 
+    private static final String ITEM_ID = "itemId";
     private final Auction auction = mock(Auction.class);
     private final SniperListener sniperListener = mock(SniperListener.class);
-    private final AuctionSniper sniper = new AuctionSniper(auction, sniperListener);
+    private final AuctionSniper sniper = new AuctionSniper(ITEM_ID, auction, sniperListener);
 
     @Test
     public void reportsLostWhenAuctionClosesImmediately() {
@@ -30,15 +28,16 @@ public class AuctionSniperTest {
         sniper.currentPrice(price, increment, AuctionEventListener.PriceSource.FromOtherBidder);
 
         verify(auction).bid(price + increment);
-        verify(sniperListener, atLeast(1)).sniperBidding();
+        verify(sniperListener, atLeast(1)).sniperStateChanged(new SniperSnapshot(ITEM_ID, 1001, 1026, Bidding.INSTANCE));
     }
 
     @Test
     public void reportsIsWinningWhenCurrentPriceComesFromSniper() {
 
+        sniper.currentPrice(123, 12, AuctionEventListener.PriceSource.FromOtherBidder);
         sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromSniper);
 
-        verify(sniperListener, atLeast(1)).sniperWinning();
+        verify(sniperListener, atLeast(1)).sniperStateChanged(new SniperSnapshot(ITEM_ID, 123, 123, Winning.INSTANCE));
     }
 
     @Test

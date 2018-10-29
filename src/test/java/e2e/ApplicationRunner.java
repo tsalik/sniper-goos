@@ -10,10 +10,12 @@ class ApplicationRunner {
     static final String SNIPER_XMPP_ID = "sniper@localhost/Auction";
     private static final String SNIPER_ID = "sniper";
     private static final String SNIPER_PASSWORD = "sniper";
+    private String itemId;
 
     private AuctionSniperDriver driver;
 
     void startBiddingIn(FakeAuctionServer auction) {
+        itemId = auction.getItemId();
         // (1) Run the Sniper in a new Thread, ideally we would in a new process, reasonable compromise
         Thread thread = new Thread("Test Application") {
             @Override
@@ -40,16 +42,16 @@ class ApplicationRunner {
         driver.showsSniperStatus(STATUS_LOST);
     }
 
-    void hasShownSniperIsWinning() {
-        driver.showsSniperStatus(STATUS_WINNING);
+    void hasShownSniperIsBidding(int lastPrice, int lastBid) {
+        driver.showsSniperStatus(itemId, lastPrice, lastBid, STATUS_BIDDING);
     }
 
-    void hasShownSniperHasWonTheAuction() {
-        driver.showsSniperStatus(STATUS_WON);
+    void hasShownSniperIsWinning(int winningBid) {
+        driver.showsSniperStatus(itemId, winningBid, winningBid, STATUS_WINNING);
     }
 
-    void hasShownSniperIsBidding() {
-        driver.showsSniperStatus(STATUS_BIDDING);
+    void hasShownSniperHasWonTheAuction(int lastPrice) {
+        driver.showsSniperStatus(itemId, lastPrice, lastPrice, STATUS_WON);
     }
 
     void stop() {

@@ -1,10 +1,9 @@
 package com.goos.sniper.ui;
 
-import com.goos.sniper.Main;
+import com.goos.sniper.sniper.SniperSnapshot;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 
 import static com.goos.sniper.Main.STATUS_JOINING;
@@ -50,30 +49,8 @@ public class MainWindow extends JFrame {
         snipers.setStatusText(status);
     }
 
-    class SnipersTableModel extends AbstractTableModel {
-
-        private String status = Main.STATUS_JOINING;
-
-        @Override
-        public int getRowCount() {
-            return 1;
-        }
-
-        @Override
-        public int getColumnCount() {
-            return 1;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            return status;
-        }
-
-        void setStatusText(String status) {
-            this.status = status;
-            fireTableRowsUpdated(0, 0);
-        }
-
+    public void sniperStateChanged(SniperSnapshot state) {
+        snipers.sniperStateChanged(state);
     }
 
 }

@@ -3,9 +3,10 @@ package com.goos.sniper;
 import com.goos.sniper.sniper.Auction;
 import com.goos.sniper.sniper.AuctionSniper;
 import com.goos.sniper.sniper.SniperListener;
+import com.goos.sniper.sniper.SniperSnapshot;
+import com.goos.sniper.ui.MainWindow;
 import com.goos.sniper.xmpp.AuctionMessageTranslator;
 import com.goos.sniper.xmpp.XMPPAuction;
-import com.goos.sniper.ui.MainWindow;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -56,7 +57,7 @@ public class Main {
         this.notToBeGCd = chat;
 
         Auction auction = new XMPPAuction(chat);
-        chat.addMessageListener(new AuctionMessageTranslator(connection.getUser(), new AuctionSniper(auction, new SniperStateDisplayer())));
+        chat.addMessageListener(new AuctionMessageTranslator(connection.getUser(), new AuctionSniper(itemId, auction, new SniperStateDisplayer())));
         auction.join();
     }
 
@@ -92,13 +93,8 @@ public class Main {
         }
 
         @Override
-        public void sniperBidding() {
-            showStatus(STATUS_BIDDING);
-        }
-
-        @Override
-        public void sniperWinning() {
-            showStatus(STATUS_WINNING);
+        public void sniperStateChanged(SniperSnapshot sniperSnapshot) {
+            SwingUtilities.invokeLater(() -> ui.sniperStateChanged(sniperSnapshot));
         }
 
         @Override
