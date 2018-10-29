@@ -5,6 +5,7 @@ import com.goos.sniper.sniper.AuctionSniper;
 import com.goos.sniper.sniper.SniperListener;
 import com.goos.sniper.sniper.SniperSnapshot;
 import com.goos.sniper.ui.MainWindow;
+import com.goos.sniper.ui.SnipersTableModel;
 import com.goos.sniper.xmpp.AuctionMessageTranslator;
 import com.goos.sniper.xmpp.XMPPAuction;
 import org.jivesoftware.smack.Chat;
@@ -35,7 +36,9 @@ public class Main {
     public static final String JOIN_COMMAND_FORMAT = "SOLVersion 1.1; Command: Join";
     public static final String BID_COMMAND_FORMAT = "SOLVersion: 1.1; Command: BID; Price: %d";
 
-    private MainWindow ui;
+    private final SnipersTableModel snipers = new SnipersTableModel();
+
+    private MainWindow mainWindow;
     private Chat notToBeGCd;
 
     private Main() throws Exception {
@@ -57,12 +60,12 @@ public class Main {
         this.notToBeGCd = chat;
 
         Auction auction = new XMPPAuction(chat);
-        chat.addMessageListener(new AuctionMessageTranslator(connection.getUser(), new AuctionSniper(itemId, auction, new SniperStateDisplayer())));
+        chat.addMessageListener(new AuctionMessageTranslator(connection.getUser(), new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers))));
         auction.join();
     }
 
     private void disconnectWhenUICloses(XMPPConnection connection) {
-        ui.addWindowListener(new WindowAdapter() {
+        mainWindow.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
                 connection.disconnect();
@@ -82,14 +85,18 @@ public class Main {
     }
 
     private void startUserInterface() throws Exception {
-        SwingUtilities.invokeAndWait(() -> ui = new MainWindow());
+        SwingUtilities.invokeAndWait(() -> mainWindow = new MainWindow(snipers));
     }
 
-    public class SniperStateDisplayer implements SniperListener {
+    public class SwingThreadSniperListener implements SniperListener {
+
+        public SwingThreadSniperListener(SnipersTableModel snipers) {
+
+        }
 
         @Override
         public void sniperStateChanged(SniperSnapshot sniperSnapshot) {
-            SwingUtilities.invokeLater(() -> ui.sniperStateChanged(sniperSnapshot));
+            SwingUtilities.invokeLater(() -> snipers.sniperStateChanged(sniperSnapshot));
         }
 
     }
