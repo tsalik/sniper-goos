@@ -1,9 +1,6 @@
 package com.goos.sniper;
 
-import com.goos.sniper.sniper.Auction;
-import com.goos.sniper.sniper.AuctionSniper;
-import com.goos.sniper.sniper.SniperListener;
-import com.goos.sniper.sniper.SniperSnapshot;
+import com.goos.sniper.sniper.*;
 import com.goos.sniper.ui.MainWindow;
 import com.goos.sniper.ui.SnipersTableModel;
 import com.goos.sniper.xmpp.AuctionMessageTranslator;
@@ -15,6 +12,7 @@ import org.jivesoftware.smack.XMPPException;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 
 public class Main {
 
@@ -61,6 +59,11 @@ public class Main {
 
         Auction auction = new XMPPAuction(chat);
         chat.addMessageListener(new AuctionMessageTranslator(connection.getUser(), new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers))));
+        try {
+            SwingUtilities.invokeAndWait(() -> snipers.sniperStateChanged(SniperSnapshotUtils.joining(itemId)));
+        } catch (InterruptedException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
         auction.join();
     }
 

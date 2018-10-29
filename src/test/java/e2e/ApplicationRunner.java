@@ -34,12 +34,14 @@ class ApplicationRunner {
         // (4) Turn the timeout down to find components
         driver = new AuctionSniperDriver(1000);
         // (5) We expect the app to show somewhere that we are joining the auction
-        driver.showsSniperStatus(STATUS_JOINING);
+        driver.hasTitle("Auction Sniper");
+        driver.hasColumnTitles();
+        driver.showsSniperStatus(itemId, 0, 0, STATUS_JOINING);
     }
 
-    void showsSniperHasLostAuction() {
+    void showsSniperHasLostAuction(String itemId, int lastPrice, int lastBid) {
         // (6) We expect that the sniper has lost the auction show it should be showing somewhere a label with Lost
-        driver.showsSniperStatus(STATUS_LOST);
+        driver.showsSniperStatus(itemId, lastPrice, lastBid, STATUS_LOST);
     }
 
     void hasShownSniperIsBidding(int lastPrice, int lastBid) {
