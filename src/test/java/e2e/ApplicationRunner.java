@@ -44,8 +44,8 @@ class ApplicationRunner {
         driver.showsSniperStatus(itemId, lastPrice, lastBid, STATUS_LOST);
     }
 
-    void hasShownSniperIsBidding(int lastPrice, int lastBid) {
-        driver.showsSniperStatus(itemId, lastPrice, lastBid, STATUS_BIDDING);
+    void hasShownSniperIsBidding(FakeAuctionServer auction, int lastPrice, int lastBid) {
+        driver.showsSniperStatus(auction.getItemId(), lastPrice, lastBid, STATUS_BIDDING);
     }
 
     void hasShownSniperIsWinning(int winningBid) {
