@@ -11,6 +11,7 @@ public class MainWindow extends JFrame {
     private static final String APPLICATION_TITLE = "Auction Sniper";
     private static final String SNIPERS_TABLE_NAME = "snipers";
     private final SnipersTableModel snipers;
+    private UserRequestListener userRequestListener;
 
     public MainWindow(SnipersTableModel snipers) {
         super(APPLICATION_TITLE);
@@ -30,6 +31,7 @@ public class MainWindow extends JFrame {
         controls.add(itemIdField);
         JButton joinAuctionButton = new JButton("Join Auction");
         joinAuctionButton.setName(JOIN_BUTTON_NAME);
+        joinAuctionButton.addActionListener(e -> userRequestListener.joinAuction(itemIdField.getText()));
         controls.add(joinAuctionButton);
         return controls;
     }
@@ -45,6 +47,10 @@ public class MainWindow extends JFrame {
         final JTable snipersTable = new JTable(snipers);
         snipersTable.setName(SNIPERS_TABLE_NAME);
         return snipersTable;
+    }
+
+    public void addUserRequestListener(UserRequestListener userRequestListener) {
+        this.userRequestListener = userRequestListener;
     }
 
 }
