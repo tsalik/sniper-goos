@@ -52,19 +52,20 @@ public class Main {
 
     }
 
-    private void joinAuction(XMPPConnection connection, String itemId) {
+    private void joinAuction(XMPPConnection connection, String itemId) throws Exception {
+        safelyAddItemToModel(itemId);
         disconnectWhenUICloses(connection);
         final Chat chat = connection.getChatManager().createChat(auctionId(itemId, connection), null);
         this.notToBeGCd = chat;
 
         Auction auction = new XMPPAuction(chat);
         chat.addMessageListener(new AuctionMessageTranslator(connection.getUser(), new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers))));
-        try {
-            SwingUtilities.invokeAndWait(() -> snipers.sniperStateChanged(SniperSnapshotUtils.joining(itemId)));
-        } catch (InterruptedException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
+
         auction.join();
+    }
+
+    private void safelyAddItemToModel(String itemId) throws Exception {
+        SwingUtilities.invokeAndWait(() -> snipers.addSniper(SniperSnapshotUtils.joining(itemId)));
     }
 
     private void disconnectWhenUICloses(XMPPConnection connection) {
