@@ -1,11 +1,11 @@
 package e2e;
 
+import com.goos.sniper.ui.MainWindow;
 import com.objogate.wl.swing.AWTEventQueueProber;
-import com.objogate.wl.swing.driver.JFrameDriver;
-import com.objogate.wl.swing.driver.JTableDriver;
-import com.objogate.wl.swing.driver.JTableHeaderDriver;
+import com.objogate.wl.swing.driver.*;
 import com.objogate.wl.swing.gesture.GesturePerformer;
 
+import javax.swing.*;
 import javax.swing.table.JTableHeader;
 
 import static com.goos.sniper.ui.MainWindow.MAIN_WINDOW_NAME;
@@ -41,4 +41,21 @@ class AuctionSniperDriver extends JFrameDriver {
                 withLabelText("State")
         ));
     }
+
+    @SuppressWarnings("unchecked")
+    void startBiddingFor(String itemId) {
+        itemIdField().replaceAllText(itemId);
+        bidButton().click();
+    }
+
+    private JTextFieldDriver itemIdField() {
+        JTextFieldDriver itemId = new JTextFieldDriver(this, JTextField.class, named(MainWindow.NEW_ITEM_ID_NAME));
+        itemId.focusWithMouse();
+        return itemId;
+    }
+
+    private JButtonDriver bidButton() {
+        return new JButtonDriver(this, JButton.class, named(MainWindow.JOIN_BUTTON_NAME));
+    }
+
 }

@@ -1,8 +1,8 @@
 package e2e;
 
 import com.goos.sniper.Main;
+import com.goos.sniper.sniper.*;
 
-import static com.goos.sniper.Main.*;
 import static e2e.FakeAuctionServer.XMPP_HOSTNAME;
 
 class ApplicationRunner {
@@ -14,6 +14,41 @@ class ApplicationRunner {
     private AuctionSniperDriver driver;
 
     void startBiddingIn(FakeAuctionServer... auctions) {
+        startSniper(auctions);
+        for (FakeAuctionServer auction : auctions) {
+            final String itemId = auction.getItemId();
+            driver.startBiddingFor(itemId);
+            driver.showsSniperStatus(itemId, 0, 0, textFor(Joining.INSTANCE));
+        }
+    }
+
+    void showsSniperHasLostAuction(String itemId, int lastPrice, int lastBid) {
+        // (6) We expect that the sniper has lost the auction show it should be showing somewhere a label with Lost
+        driver.showsSniperStatus(itemId, lastPrice, lastBid, textFor(Lost.INSTANCE));
+    }
+
+    void hasShownSniperIsBidding(FakeAuctionServer auction, int lastPrice, int lastBid) {
+        driver.showsSniperStatus(auction.getItemId(), lastPrice, lastBid, textFor(Bidding.INSTANCE));
+    }
+
+    void hasShownSniperIsWinning(FakeAuctionServer auction, int winningBid) {
+        driver.showsSniperStatus(auction.getItemId(), winningBid, winningBid, textFor(Winning.INSTANCE));
+    }
+
+    void showsSniperHasWonAuction(FakeAuctionServer auction, int lastPrice) {
+        driver.showsSniperStatus(auction.getItemId(), lastPrice, lastPrice, textFor(Won.INSTANCE));
+    }
+
+    void stop() {
+        if (driver != null) {
+            /* (7) After the test has finished, tell the driver to dispose the window so it won't be picked by
+             * another test before being garbage-collected
+             */
+            driver.dispose();
+        }
+    }
+
+    private void startSniper(FakeAuctionServer[] auctions) {
         // (1) Run the Sniper in a new Thread, ideally we would in a new process, reasonable compromise
         Thread thread = new Thread("Test Application") {
             @Override
@@ -34,35 +69,6 @@ class ApplicationRunner {
         // (5) We expect the app to show somewhere that we are joining the auction
         driver.hasTitle("Auction Sniper");
         driver.hasColumnTitles();
-        for (FakeAuctionServer auction : auctions) {
-            driver.showsSniperStatus(auction.getItemId(), 0, 0, STATUS_JOINING);
-        }
-    }
-
-    void showsSniperHasLostAuction(String itemId, int lastPrice, int lastBid) {
-        // (6) We expect that the sniper has lost the auction show it should be showing somewhere a label with Lost
-        driver.showsSniperStatus(itemId, lastPrice, lastBid, STATUS_LOST);
-    }
-
-    void hasShownSniperIsBidding(FakeAuctionServer auction, int lastPrice, int lastBid) {
-        driver.showsSniperStatus(auction.getItemId(), lastPrice, lastBid, STATUS_BIDDING);
-    }
-
-    void hasShownSniperIsWinning(FakeAuctionServer auction, int winningBid) {
-        driver.showsSniperStatus(auction.getItemId(), winningBid, winningBid, STATUS_WINNING);
-    }
-
-    void showsSniperHasWonAuction(FakeAuctionServer auction, int lastPrice) {
-        driver.showsSniperStatus(auction.getItemId(), lastPrice, lastPrice, STATUS_WON);
-    }
-
-    void stop() {
-        if (driver != null) {
-            /* (7) After the test has finished, tell the driver to dispose the window so it won't be picked by
-             * another test before being garbage-collected
-             */
-            driver.dispose();
-        }
     }
 
     private String[] arguments(FakeAuctionServer... auctions) {
@@ -74,6 +80,10 @@ class ApplicationRunner {
             arguments[i + 3] = auctions[i].getItemId();
         }
         return arguments;
+    }
+
+    private String textFor(SniperState sniperState) {
+        return sniperState.status();
     }
 
 }

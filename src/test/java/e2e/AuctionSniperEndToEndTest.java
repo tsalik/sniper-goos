@@ -1,6 +1,7 @@
 package e2e;
 
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class AuctionSniperEndToEndTest {
@@ -8,6 +9,12 @@ public class AuctionSniperEndToEndTest {
     private final FakeAuctionServer auction = new FakeAuctionServer("item-54321");
     private final FakeAuctionServer auction2 = new FakeAuctionServer("item-65432");
     private final ApplicationRunner application = new ApplicationRunner();
+
+    @BeforeClass
+    public static void fixMacOSKeyboard() {
+        System.setProperty("com.objogate.wl.keyboard", "Mac-GB");
+
+    }
 
     @Test
     public void sniperJoinsAuctionUntilAuctionCloses() throws Exception {
