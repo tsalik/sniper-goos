@@ -1,8 +1,11 @@
 package com.goos.sniper;
 
-import com.goos.sniper.sniper.*;
+import com.goos.sniper.sniper.Auction;
+import com.goos.sniper.sniper.AuctionSniper;
+import com.goos.sniper.sniper.SniperSnapshotUtils;
 import com.goos.sniper.ui.MainWindow;
 import com.goos.sniper.ui.SnipersTableModel;
+import com.goos.sniper.ui.SwingThreadSniperListener;
 import com.goos.sniper.xmpp.XMPPAuctionHouse;
 
 import javax.swing.*;
@@ -67,19 +70,6 @@ public class Main {
 
     private void startUserInterface() throws Exception {
         SwingUtilities.invokeAndWait(() -> mainWindow = new MainWindow(snipers));
-    }
-
-    public class SwingThreadSniperListener implements SniperListener {
-
-        public SwingThreadSniperListener(SnipersTableModel snipers) {
-
-        }
-
-        @Override
-        public void sniperStateChanged(SniperSnapshot sniperSnapshot) {
-            SwingUtilities.invokeLater(() -> snipers.sniperStateChanged(sniperSnapshot));
-        }
-
     }
 
 }
