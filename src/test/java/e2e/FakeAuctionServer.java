@@ -5,10 +5,9 @@ import org.hamcrest.Matcher;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message;
 
-import static com.goos.sniper.Main.AUCTION_RESOURCE;
-import static com.goos.sniper.Main.ITEM_ID_AS_LOGIN;
+import static com.goos.sniper.xmpp.XMPPAuction.AUCTION_RESOURCE;
+import static com.goos.sniper.xmpp.XMPPAuction.ITEM_ID_AS_LOGIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
